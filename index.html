@@ -3,21 +3,23 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Simulador Prendarios</title>
+<title>Simulador Columbia</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;min-height:100vh}
 
   /* ── NAV ── */
   .nav{display:flex;align-items:center;gap:0;background:#1a1a2e;padding:0}
-  .nav-title{color:#fff;font-size:15px;font-weight:600;padding:0 24px;letter-spacing:.03em}
+  .nav-logo{display:flex;align-items:center;gap:10px;padding:0 24px}
+  .nav-logo-text{color:#f0c040;font-size:15px;font-weight:800;letter-spacing:.08em}
+  .nav-logo-sub{color:rgba(255,255,255,.4);font-size:11px;font-weight:400;letter-spacing:.04em}
+  .nav-sep{width:1px;height:20px;background:rgba(255,255,255,.15);margin:0 4px}
   .nav-btn{padding:14px 24px;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;border:none;background:transparent;transition:.2s}
   .nav-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
   .nav-btn.active{color:#f0c040;border-bottom:2px solid #f0c040;font-weight:600}
-  .nav-sep{width:1px;height:20px;background:rgba(255,255,255,.15);margin:0 4px}
 
   /* ── VIEWS ── */
-  .view{display:none;padding:28px 32px;max-width:1100px;margin:0 auto}
+  .view{display:none;padding:28px 32px;max-width:960px;margin:0 auto}
   .view.active{display:block}
   #view-client.active{padding:16px 24px}
 
@@ -26,24 +28,18 @@
   .acard{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
   .acard-title{font-size:11px;font-weight:600;color:#888;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
   .big-input{width:100%;font-size:20px;font-weight:700;font-family:'Courier New',monospace;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;color:#1a1a2e;outline:none}
-  .big-input:focus{border-color:#4a6fa5}
+  .big-input:focus{border-color:#b8242a}
   .com-row{display:flex;gap:8px;margin-top:10px}
   .com-btn{flex:1;padding:8px;border:1.5px solid #e0e0e0;border-radius:8px;background:#fff;color:#666;cursor:pointer;font-size:13px;font-weight:500;transition:.15s}
-  .com-btn:hover{border-color:#4a6fa5;color:#4a6fa5}
-  .com-btn.active{background:#4a6fa5;border-color:#4a6fa5;color:#fff}
+  .com-btn:hover{border-color:#b8242a;color:#b8242a}
+  .com-btn.active{background:#b8242a;border-color:#b8242a;color:#fff}
   .metric-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .metric{background:#f7f8fa;border-radius:8px;padding:10px 14px}
   .metric label{font-size:11px;color:#999;display:block;margin-bottom:3px}
   .metric span{font-size:16px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a2e}
 
-  /* bank selector */
-  .bank-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-  .btab{padding:8px 20px;border:1.5px solid #ddd;border-radius:20px;font-size:13px;cursor:pointer;color:#666;background:#fff;font-weight:500;transition:.15s}
-  .btab:hover{border-color:#4a6fa5}
-  .btab.active{border-color:#1a1a2e;background:#1a1a2e;color:#fff}
-  .tipo-row{display:flex;gap:8px;margin-bottom:16px}
-  .tipo-btn{padding:6px 18px;border:1.5px solid #ddd;border-radius:16px;font-size:13px;cursor:pointer;color:#666;background:#fff;transition:.15s}
-  .tipo-btn.active{background:#f0c040;border-color:#d4a800;color:#1a1a2e;font-weight:600}
+  /* badge versión */
+  .version-badge{display:inline-block;background:#f0f2f5;border:1px solid #e0e0e0;border-radius:6px;font-size:10px;color:#888;padding:3px 8px;margin-top:8px}
 
   /* rate cards */
   .rlines{display:grid;gap:12px}
@@ -52,9 +48,9 @@
   .rline-name{font-size:13px;font-weight:700;color:#1a1a2e}
   .tna-grp{display:flex;align-items:center;gap:8px}
   .tna-label{font-size:12px;color:#888}
-  .tna-box{display:flex;align-items:center;gap:4px;border:1.5px solid #4a6fa5;border-radius:8px;padding:6px 10px;background:#fff}
+  .tna-box{display:flex;align-items:center;gap:4px;border:1.5px solid #b8242a;border-radius:8px;padding:6px 10px;background:#fff}
   .tna-inp{width:60px;font-size:16px;font-weight:700;font-family:'Courier New',monospace;border:none;outline:none;background:transparent;color:#1a1a2e;text-align:right}
-  .tna-pct{font-size:14px;font-weight:700;color:#4a6fa5}
+  .tna-pct{font-size:14px;font-weight:700;color:#b8242a}
   .tna-hint{font-size:11px;color:#bbb}
   .tna-ref{font-size:11px;color:#e67e22;font-weight:500}
   .rtable{width:100%;border-collapse:collapse}
@@ -69,11 +65,11 @@
   .rtable .na-td{color:#ddd}
 
   /* ── generate button ── */
-  .gen-btn{display:block;margin:24px 0 0;padding:13px 32px;background:#f0c040;border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1a1a2e;cursor:pointer;letter-spacing:.03em;transition:.15s}
+  .gen-btn{display:block;margin:24px 0 0;padding:13px 32px;background:#f0c040;border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1a1a2e;cursor:pointer;letter-spacing:.03em;transition:.15s;width:100%}
   .gen-btn:hover{background:#d4a800;transform:translateY(-1px)}
 
   /* ── CLIENT VIEW ── */
-  #view-client{max-width:1100px}
+  #view-client{max-width:960px}
   .client-card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.12);overflow:hidden}
   .client-header{background:#1a1a2e;color:#fff;text-align:center;padding:12px 16px 10px}
   .client-header .bank-logo{font-size:17px;font-weight:800;letter-spacing:.05em;color:#f0c040;margin-bottom:1px}
@@ -83,12 +79,10 @@
   .client-field{padding:8px 14px}
   .client-field:first-child{border-right:1px solid #eee}
   .client-field .cf-label{font-size:10px;font-weight:700;color:#888;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
-  .client-field .cf-tag{display:inline-block;background:#1a1a2e;color:#f0c040;font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:.05em;margin-bottom:6px}
   .client-field .cf-val{font-size:14px;font-weight:800;font-family:'Courier New',monospace;color:#1a1a2e}
   .client-note{padding:5px 14px;font-size:9px;color:#aaa;border-bottom:1px solid #eee;line-height:1.4}
   .client-table-head{display:grid;grid-template-columns:1fr 1fr;background:#1a1a2e}
   .client-table-head span{font-size:10px;font-weight:700;color:#f0c040;letter-spacing:.06em;text-transform:uppercase;padding:7px 14px;text-align:center}
-  .client-rows{}
   .client-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #f0f0f0}
   .client-row:last-child{border-bottom:none}
   .client-row span{padding:7px 14px;text-align:center;font-size:13px}
@@ -97,14 +91,12 @@
   .client-row .cr-na{color:#ccc;font-size:13px}
   .client-row:nth-child(even){background:#fafafa}
   .client-date{text-align:right;font-size:9px;color:#bbb;padding:5px 14px;border-top:1px solid #f0f0f0}
-  .no-client{text-align:center;color:#bbb;padding:60px 20px;font-size:14px}
-  .no-client strong{display:block;font-size:22px;margin-bottom:8px;color:#ddd}
 
   .print-btn{display:block;margin:10px 0 0;padding:8px 20px;background:#1a1a2e;border:none;border-radius:10px;font-size:14px;font-weight:600;color:#f0c040;cursor:pointer;letter-spacing:.03em;transition:.15s}
   .print-btn:hover{background:#2d2d4e}
 
   @media print{
-    .nav,.admin-top,.bank-tabs,.tipo-row,.rlines,.gen-btn,.print-btn,.view:not(#view-client){display:none!important}
+    .nav,.admin-top,.rlines,.gen-btn,.print-btn,.view:not(#view-client){display:none!important}
     body{background:#fff}
     #view-client{display:block!important;max-width:100%;padding:0}
     .client-card{box-shadow:none;border-radius:0}
@@ -115,7 +107,12 @@
 <div id="app">
 
 <div class="nav">
-  <div class="nav-title">Simulador Prendarios</div>
+  <div class="nav-logo">
+    <div>
+      <div class="nav-logo-text">COLUMBIA</div>
+      <div class="nav-logo-sub">Simulador Prendarios</div>
+    </div>
+  </div>
   <div class="nav-sep"></div>
   <button class="nav-btn active" onclick="switchView('admin')">Panel de tasas</button>
   <button class="nav-btn" onclick="switchView('client')">Vista cliente</button>
@@ -127,7 +124,7 @@
   <div class="admin-top">
     <div class="acard">
       <div class="acard-title">Monto bruto a solicitar</div>
-      <input class="big-input" id="monto" type="text" value="13.455.000" oninput="fmtMonto(this);renderAll()"/>
+      <input class="big-input" id="monto" type="text" value="3.725.000" oninput="fmtMonto(this);renderAll()"/>
       <div class="com-row" id="com-btns">
         <button class="com-btn active" data-v="0.032" onclick="setComision(this)">3,2%</button>
         <button class="com-btn" data-v="0.042" onclick="setComision(this)">4,2%</button>
@@ -143,12 +140,11 @@
     </div>
     <div class="acard">
       <div class="acard-title">Vista cliente</div>
-      <button class="gen-btn" style="margin:0;width:100%" onclick="switchView('client')">Generar vista cliente →</button>
+      <button class="gen-btn" style="margin:0" onclick="switchView('client')">Generar vista cliente →</button>
+      <div class="version-badge">COLUMBIA · ABRIL 2026</div>
     </div>
   </div>
 
-  <div class="bank-tabs" id="btabs"></div>
-  <div class="tipo-row" id="tipos"></div>
   <div class="rlines" id="rlines"></div>
 
 </div>
@@ -160,124 +156,79 @@
 </div>
 
 <script>
-const PLAZOS=[12,24,36,48,60];
+const PLAZOS = [12, 24, 36, 48, 60];
 
-const BANKS={
-  galicia:{name:'GALICIA',tipos:['fija','uva'],lines:[
-    {id:'gfu',tipo:'fija',name:'Fija usados', sub:'CUOTA FIJA USADOS',  refTna:69,
-     refCohef:{12:121.93656,18:95.941675,24:83.836187,36:73.337419,48:69.431052,60:67.899213}},
-    {id:'gf0',tipo:'fija',name:'Fija 0km',    sub:'CUOTA FIJA 0KM',     refTna:64,
-     refCohef:{12:118.91263,18:92.670289,24:80.327401,36:69.405982,48:65.161167,60:63.375748}},
-    {id:'guu',tipo:'uva', name:'UVA usados',  sub:'CUOTA UVA USADOS',   refTna:34,
-     refCohef:{12:101.50065,18:74.140849,24:60.696664,36:47.71044,48:41.650876,60:38.340761}},
-    {id:'gu0',tipo:'uva', name:'UVA 0km',     sub:'CUOTA UVA 0KM',      refTna:33,
-     refCohef:{12:100.936615,18:74.0898,24:60.087172,36:47.048754,48:40.94373,60:37.584789}},
-  ]},
-  santander:{name:'SANTANDER',tipos:['fija','uva'],lines:[
-    {id:'saf',tipo:'fija',name:'Fija',sub:'CUOTA FIJA',refTna:56.5,
-     refCohef:{12:120.864572,18:93.49537,24:80.316123,36:68.075595,48:62.782712,60:60.150437}},
-    {id:'sau',tipo:'uva', name:'UVA', sub:'CUOTA UVA', refTna:30,
-     refCohef:{12:102.737125,18:74.920081,24:61.16282,36:47.701577,48:41.255994,60:null}},
-  ]},
-  supervielle:{name:'SUPERVIELLE',tipos:['fija','uva'],lines:[
-    {id:'svf',tipo:'fija',name:'Fija',sub:'CUOTA FIJA',refTna:70,
-     refCohef:{12:123.32541,18:96.046222,24:82.970901,36:70.934457,48:65.818431,60:null}},
-    {id:'svu',tipo:'uva', name:'UVA', sub:'CUOTA UVA', refTna:32,
-     refCohef:{12:101.405988,18:73.572853,24:59.788497,36:46.263587,48:39.752146,60:null}},
-  ]},
-  columbia:{name:'COLUMBIA',tipos:['fija'],lines:[
-    {id:'cfe',tipo:'fija',name:'Fija Exclusive',sub:'CUOTA FIJA EXCLUSIVE',refTna:65.9,
-     refCohef:{12:134.693879,18:null,24:90.627652,36:77.514399,48:71.019532,60:68.764145}},
-    {id:'cfc',tipo:'fija',name:'Fija Confort',  sub:'CUOTA FIJA CONFORT',  refTna:69.9,
-     refCohef:{12:136.145462,18:null,24:93.781058,36:80.909438,48:74.600888,60:72.49987}},
-    {id:'cfp',tipo:'fija',name:'Fija Premium',  sub:'CUOTA FIJA PREMIUM',  refTna:72.9,
-     refCohef:{12:137.60179, 18:null,24:96.167915,36:83.482103,48:77.31389, 60:75.325396}},
-  ]}
-};
+// Coeficientes COLUMBIA - ABRIL 2026
+const LINES = [
+  {id:'cfe', name:'Fija Exclusive', sub:'CUOTA FIJA EXCLUSIVE', refTna:61.9,
+   refCohef:{12:128.081, 18:null, 24:84.639, 36:70.371, 48:64.171, 60:62.125}},
+  {id:'cfc', name:'Fija Confort',   sub:'CUOTA FIJA CONFORT',   refTna:64.9,
+   refCohef:{12:129.408, 18:null, 24:87.587, 36:72.774, 48:66.741, 60:64.839}},
+  {id:'cfp', name:'Fija Premium',   sub:'CUOTA FIJA PREMIUM',   refTna:67.9,
+   refCohef:{12:130.741, 18:null, 24:89.825, 36:75.206, 48:69.341, 60:67.581}},
+];
 
-const tnaState={};
-Object.values(BANKS).forEach(b=>b.lines.forEach(l=>{ tnaState[l.id]=l.refTna; }));
+const tnaState = {};
+LINES.forEach(l => { tnaState[l.id] = l.refTna; });
 
-const tipoState={galicia:'fija',santander:'fija',supervielle:'fija',columbia:'fija'};
-let curBank='galicia', comision=0.032, bruto=0;
+let comision = 0.032, bruto = 0;
 
-function francesCohef(tna,n){
-  const i=tna/100/12;
-  if(i===0) return 1000/n;
-  const f=Math.pow(1+i,n);
-  return 1000*i*f/(f-1);
-}
-function getCohef(line,p){
-  const ref=line.refCohef[p];
-  if(ref==null) return null;
-  const delta=francesCohef(tnaState[line.id],p)-francesCohef(line.refTna,p);
-  return ref+delta;
-}
-function parseNum(s){ return parseFloat((s||'').replace(/\./g,'').replace(',','.'))||0; }
-function fmtPeso(n){ return '$\u202f'+Math.round(n).toLocaleString('es-AR'); }
-function fmtMonto(inp){
-  let raw=inp.value.replace(/\D/g,'');
-  if(raw) inp.value=parseInt(raw,10).toLocaleString('es-AR');
+function francesCohef(tna, n) {
+  const i = tna / 100 / 12;
+  if (i === 0) return 1000 / n;
+  const f = Math.pow(1 + i, n);
+  return 1000 * i * f / (f - 1);
 }
 
-function switchView(v){
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  document.querySelectorAll('.nav-btn')[v==='admin'?0:1].classList.add('active');
-  if(v==='client') renderClient();
+function getCohef(line, p) {
+  const ref = line.refCohef[p];
+  if (ref == null) return null;
+  const delta = francesCohef(tnaState[line.id], p) - francesCohef(line.refTna, p);
+  return ref + delta;
 }
 
-function setComision(btn){
-  comision=parseFloat(btn.dataset.v);
-  document.querySelectorAll('.com-btn').forEach(b=>b.classList.remove('active'));
+function parseNum(s) { return parseFloat((s || '').replace(/\./g, '').replace(',', '.')) || 0; }
+function fmtPeso(n) { return '$\u202f' + Math.round(n).toLocaleString('es-AR'); }
+function fmtMonto(inp) {
+  let raw = inp.value.replace(/\D/g, '');
+  if (raw) inp.value = parseInt(raw, 10).toLocaleString('es-AR');
+}
+
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.nav-btn')[v === 'admin' ? 0 : 1].classList.add('active');
+  if (v === 'client') renderClient();
+}
+
+function setComision(btn) {
+  comision = parseFloat(btn.dataset.v);
+  document.querySelectorAll('.com-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderAll();
 }
 
-function renderBankTabs(){
-  const el=document.getElementById("btabs");
-  el.innerHTML=Object.keys(BANKS).map(k=>
-    `<div class="btab ${k===curBank?"active":""}" data-bank="${k}">${BANKS[k].name}</div>`
-  ).join("");
-  el.querySelectorAll(".btab").forEach(tab=>{
-    tab.addEventListener("click",()=>{
-      curBank=tab.dataset.bank;
-      renderBankTabs();
-      renderTipos();
-      renderLines();
-    });
-  });
+function applyTna(inp) {
+  const v = parseFloat(inp.value);
+  if (!isNaN(v) && v > 0) {
+    const lid = inp.dataset.lid;
+    tnaState[lid] = v;
+    const refEl = document.getElementById('ref-' + lid);
+    const origLine = LINES.find(l => l.id === lid);
+    if (refEl) refEl.textContent = Math.abs(v - origLine.refTna) > 0.01 ? 'ref: ' + origLine.refTna + '%' : '';
+    renderLines();
+  }
 }
 
-function renderTipos(){
-  const b=BANKS[curBank];
-  const el=document.getElementById("tipos");
-  if(b.tipos.length<2){el.innerHTML="";return;}
-  el.innerHTML=b.tipos.map(t=>
-    `<div class="tipo-btn ${tipoState[curBank]===t?"active":""}" data-tipo="${t}">${t==="fija"?"Cuota Fija":"Cuota UVA"}</div>`
-  ).join("");
-  el.querySelectorAll(".tipo-btn").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      tipoState[curBank]=btn.dataset.tipo;
-      renderTipos();
-      renderLines();
-    });
-  });
-}
-
-function renderLines(){
-  const b=BANKS[curBank];
-  const tipo=tipoState[curBank];
-  const lines=b.lines.filter(l=>l.tipo===tipo);
-
-  const minByPlazo={};
-  PLAZOS.forEach(p=>{
-    const vals=lines.map(l=>getCohef(l,p)).filter(v=>v!=null);
-    minByPlazo[p]=vals.length?Math.min(...vals):null;
+function renderLines() {
+  const minByPlazo = {};
+  PLAZOS.forEach(p => {
+    const vals = LINES.map(l => getCohef(l, p)).filter(v => v != null);
+    minByPlazo[p] = vals.length ? Math.min(...vals) : null;
   });
 
-  document.getElementById('rlines').innerHTML=lines.map(l=>`
+  document.getElementById('rlines').innerHTML = LINES.map(l => `
     <div class="rline">
       <div class="rline-head">
         <span class="rline-name">${l.name}</span>
@@ -289,8 +240,7 @@ function renderLines(){
               onblur="applyTna(this)" onkeydown="if(event.key==='Enter'){this.blur()}"/>
             <span class="tna-pct">%</span>
           </div>
-          <span class="tna-ref" id="ref-${l.id}">${Math.abs(tnaState[l.id]-l.refTna)>0.01?'ref: '+l.refTna+'%':''}</span>
-          <span id="save-ind-${l.id}" style="font-size:11px;color:#27ae60;min-width:70px"></span>
+          <span class="tna-ref" id="ref-${l.id}">${Math.abs(tnaState[l.id] - l.refTna) > 0.01 ? 'ref: ' + l.refTna + '%' : ''}</span>
           <span class="tna-hint">↵ Enter para aplicar</span>
         </div>
       </div>
@@ -299,15 +249,15 @@ function renderLines(){
           <th>Plazo</th><th>Coeficiente</th><th>Cuota mensual</th>
         </tr></thead>
         <tbody>
-          ${PLAZOS.map(p=>{
-            const c=getCohef(l,p);
-            if(c==null) return `<tr><td>${p} cuotas</td><td class="na-td cohef-td">—</td><td class="na-td">—</td></tr>`;
-            const cuota=bruto*c/1000;
-            const isBest=lines.length>1&&Math.abs((minByPlazo[p]||0)-c)<0.001;
+          ${PLAZOS.map(p => {
+            const c = getCohef(l, p);
+            if (c == null) return `<tr><td>${p} cuotas</td><td class="na-td cohef-td">—</td><td class="na-td">—</td></tr>`;
+            const cuota = bruto * c / 1000;
+            const isBest = LINES.length > 1 && Math.abs((minByPlazo[p] || 0) - c) < 0.001;
             return `<tr>
               <td>${p} cuotas</td>
               <td class="cohef-td">${c.toFixed(3)}</td>
-              <td class="cuota-td ${isBest?'best':''}">${fmtPeso(cuota)}</td>
+              <td class="cuota-td ${isBest ? 'best' : ''}">${bruto > 0 ? fmtPeso(cuota) : '—'}</td>
             </tr>`;
           }).join('')}
         </tbody>
@@ -315,157 +265,64 @@ function renderLines(){
     </div>`).join('');
 }
 
-function applyTna(inp){
-  const v=parseFloat(inp.value);
-  if(!isNaN(v)&&v>0){
-    const lid=inp.dataset.lid;
-    tnaState[lid]=v;
-    const refEl=document.getElementById('ref-'+lid);
-    const origLine=Object.values(BANKS).flatMap(b=>b.lines).find(l=>l.id===lid);
-    if(refEl) refEl.textContent=Math.abs(v-origLine.refTna)>0.01?'ref: '+origLine.refTna+'%':'';
-    renderLines();
-    saveToSheet(lid, v);
-  }
-}
-
-function renderAll(){
-  bruto=parseNum(document.getElementById('monto').value);
-  document.getElementById('cobro').textContent=bruto>0?fmtPeso(bruto*comision):'—';
-  document.getElementById('neto').textContent=bruto>0?fmtPeso(bruto*(1-comision)):'—';
+function renderAll() {
+  bruto = parseNum(document.getElementById('monto').value);
+  document.getElementById('cobro').textContent = bruto > 0 ? fmtPeso(bruto * comision) : '—';
+  document.getElementById('neto').textContent = bruto > 0 ? fmtPeso(bruto * (1 - comision)) : '—';
   renderLines();
 }
 
-function renderClient(){
-  const b=BANKS[curBank];
-  const tipo=tipoState[curBank];
-  const lines=b.lines.filter(l=>l.tipo===tipo);
-  const today=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+function renderClient() {
+  const today = new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', year:'numeric'});
 
-  const cards='<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">'+lines.map(l=>{
-    const rows=PLAZOS.map(p=>{
-      const c=getCohef(l,p);
-      if(c==null) return `<div class="client-row"><span class="cr-plazo">${p}</span><span class="cr-na">—</span></div>`;
-      const cuota=bruto*c/1000;
-      return `<div class="client-row">
-        <span class="cr-plazo">${p}</span>
-        <span class="cr-cuota">${fmtPeso(cuota)}</span>
+  const cards = '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">' +
+    LINES.map(l => {
+      const rows = PLAZOS.map(p => {
+        const c = getCohef(l, p);
+        if (c == null) return `<div class="client-row"><span class="cr-plazo">${p}</span><span class="cr-na">—</span></div>`;
+        const cuota = bruto * c / 1000;
+        return `<div class="client-row">
+          <span class="cr-plazo">${p}</span>
+          <span class="cr-cuota">${fmtPeso(cuota)}</span>
+        </div>`;
+      }).join('');
+
+      return `<div class="client-card" style="flex:1;min-width:260px;max-width:380px">
+        <div class="client-header">
+          <div class="bank-logo">BANCO COLUMBIA</div>
+          <div class="est-title">ESTIMADOR DE COSTOS COLUMBIA</div>
+          <div class="version">TNA ${tnaState[l.id]}% · ABRIL 2026</div>
+        </div>
+        <div style="text-align:center;padding:8px 14px;border-bottom:1px solid #eee;background:#1a1a2e">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px">Línea de crédito</div>
+          <div style="display:inline-block;background:#f0c040;color:#1a1a2e;font-size:12px;font-weight:800;padding:4px 16px;border-radius:4px;letter-spacing:.06em">${l.sub}</div>
+        </div>
+        <div class="client-section" style="border-bottom:1px solid #eee">
+          <div class="client-field">
+            <div class="cf-label">Monto final a cliente</div>
+            <div class="cf-val">${bruto > 0 ? fmtPeso(bruto * (1 - comision)) : '—'}</div>
+          </div>
+          <div class="client-field">
+            <div class="cf-label">Monto crédito a solicitar</div>
+            <div class="cf-val">${bruto > 0 ? fmtPeso(bruto) : '—'}</div>
+          </div>
+        </div>
+        <div class="client-note">
+          Plazo de 12 a 60 meses se corrobora al momento de solicitar el crédito la disponibilidad máxima del cliente determinado por valor cuota e ingresos.
+        </div>
+        <div class="client-table-head">
+          <span>PLAZO EN MESES</span><span>MONTO CUOTA APROX.</span>
+        </div>
+        <div class="client-rows">${rows}</div>
+        <div class="client-date">${today}</div>
       </div>`;
-    }).join('');
+    }).join('') + '</div>';
 
-    return `<div class="client-card" style="flex:1;min-width:280px;max-width:420px">
-      <div class="client-header">
-        <div class="bank-logo">${b.name}</div>
-        <div class="est-title">ESTIMADOR DE COSTOS ${b.name}</div>
-        <div class="version">TNA ${tnaState[l.id]}%</div>
-      </div>
-      <div style="text-align:center;padding:8px 14px;border-bottom:1px solid #eee;background:#1a1a2e">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px">Línea de crédito</div>
-        <div style="display:inline-block;background:#f0c040;color:#1a1a2e;font-size:12px;font-weight:800;padding:4px 16px;border-radius:4px;letter-spacing:.06em">${l.sub}</div>
-      </div>
-      <div class="client-section" style="border-bottom:1px solid #eee">
-        <div class="client-field">
-          <div class="cf-label">Monto final a cliente</div>
-          <div class="cf-val">${bruto>0?fmtPeso(bruto*(1-comision)):'—'}</div>
-        </div>
-        <div class="client-field">
-          <div class="cf-label">Monto crédito a solicitar</div>
-          <div class="cf-val">${bruto>0?fmtPeso(bruto):'—'}</div>
-        </div>
-      </div>
-      <div class="client-note">
-        Plazo de 12 a 24 meses se corrobora al momento de solicitar el crédito la disponibilidad máxima del cliente determinado por valor cuota e ingresos.
-      </div>
-      <div class="client-table-head">
-        <span>PLAZO EN MESES</span><span>MONTO CUOTA APROX.</span>
-      </div>
-      <div class="client-rows">${rows}</div>
-      <div class="client-date">${today}</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('client-card-wrap').innerHTML=(cards+'</div>')||
-    `<div class="no-client"><strong>Sin datos</strong>Configurá un banco y monto en el panel de tasas</div>`;
+  document.getElementById('client-card-wrap').innerHTML = cards;
 }
 
-// ── URLs ─────────────────────────────────────────
-var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTpNblYZ0RgEnnKOk6W0qltjgeKsug3C1L_bg8WPkApgM8Kf_hveFawFkyy1JMuoM_6FqHkLeDxEUdh/pub?gid=1337940794&single=true&output=csv';
-var SAVE_URL = 'REEMPLAZAR_CON_URL_DEL_SCRIPT';
-
-// ── Parsear CSV ───────────────────────────────────
-function parseCSV(text) {
-  var lines = text.trim().split('\n');
-  var headers = lines[0].split(',').map(function(h){ return h.trim().replace(/^"|"$/g,''); });
-  var rows = [];
-  for (var i = 1; i < lines.length; i++) {
-    var vals = lines[i].split(',').map(function(v){ return v.trim().replace(/^"|"$/g,''); });
-    if (!vals[0]) continue;
-    var obj = {};
-    headers.forEach(function(h, idx){ obj[h] = vals[idx] || ''; });
-    rows.push(obj);
-  }
-  return rows;
-}
-
-// ── Cargar tasas desde CSV público ───────────────
-function loadFromSheet() {
-  fetch(CSV_URL + '&t=' + Date.now())
-    .then(function(r){ return r.text(); })
-    .then(function(text){
-      var rows = parseCSV(text);
-      if (!rows.length) return;
-      Object.keys(BANKS).forEach(function(k){ BANKS[k].lines = []; BANKS[k].tipos = []; });
-      rows.forEach(function(r) {
-        if (!BANKS[r.banco]) return;
-        var b = BANKS[r.banco];
-        b.name = r.bancoNombre;
-        if (!b.tipos.includes(r.tipo)) b.tipos.push(r.tipo);
-        b.lines.push({
-          id: r.id, tipo: r.tipo, name: r.nombre, sub: r.sub,
-          refTna: parseFloat(r.refTna),
-          refCohef: {
-            12: r.c12!==''&&r.c12!==undefined?parseFloat(r.c12):null,
-            18: r.c18!==''&&r.c18!==undefined?parseFloat(r.c18):null,
-            24: r.c24!==''&&r.c24!==undefined?parseFloat(r.c24):null,
-            36: r.c36!==''&&r.c36!==undefined?parseFloat(r.c36):null,
-            48: r.c48!==''&&r.c48!==undefined?parseFloat(r.c48):null,
-            60: r.c60!==''&&r.c60!==undefined?parseFloat(r.c60):null,
-          }
-        });
-      });
-      Object.values(BANKS).forEach(function(b){
-        b.lines.forEach(function(l){ tnaState[l.id]=l.refTna; });
-      });
-      renderBankTabs();
-      renderTipos();
-      renderAll();
-    })
-    .catch(function(e){ console.log('CSV load error:', e); });
-}
-
-// ── Guardar TNA via Apps Script ───────────────────
-function saveToSheet(lid, tna) {
-  var ind = document.getElementById('save-ind-'+lid);
-  if (!SAVE_URL || SAVE_URL.includes('REEMPLAZAR')) {
-    if (ind) { ind.textContent = '⚠ sin API'; setTimeout(function(){ ind.textContent=''; }, 2000); }
-    return;
-  }
-  if (ind) ind.textContent = '⏳';
-  fetch(SAVE_URL + '?accion=guardarTna&id=' + encodeURIComponent(lid) + '&tna=' + tna)
-    .then(function(r){ return r.text(); })
-    .then(function(res){
-      if (ind) {
-        ind.textContent = res.trim()==='OK' ? '✓ guardado' : '⚠ error';
-        setTimeout(function(){ ind.textContent=''; }, 2000);
-      }
-    })
-    .catch(function(){ if (ind) { ind.textContent='⚠ error'; setTimeout(function(){ ind.textContent=''; }, 2000); } });
-}
-
-// init — carga hardcodeado al instante, luego actualiza desde CSV
-renderBankTabs();
-renderTipos();
+// init
 renderAll();
-loadFromSheet();
 </script>
 </div>
 </body>
