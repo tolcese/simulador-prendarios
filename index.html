@@ -95,6 +95,17 @@
   .print-btn{display:block;margin:10px 0 0;padding:8px 20px;background:#1a1a2e;border:none;border-radius:10px;font-size:14px;font-weight:600;color:#f0c040;cursor:pointer;letter-spacing:.03em;transition:.15s}
   .print-btn:hover{background:#2d2d4e}
 
+  /* PRE VISTA */
+  #view-preview{max-width:960px}
+  .preview-row{display:grid;grid-template-columns:1fr 1fr 28px;border-bottom:1px solid #f0f0f0;align-items:center}
+  .preview-row:last-child{border-bottom:none}
+  .preview-row span{padding:7px 14px;text-align:center;font-size:13px}
+  .preview-row .cr-plazo{font-weight:600;color:#555;font-size:12px;text-align:center}
+  .preview-row .cr-cuota{font-family:'Courier New',monospace;font-weight:800;color:#1a1a2e;font-size:13px;text-align:center}
+  .preview-row:nth-child(even){background:#fafafa}
+  .del-btn{background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:4px 8px;line-height:1;border-radius:4px;transition:.15s}
+  .del-btn:hover{color:#e74c3c;background:#fff0f0}
+
   @media print{
     .nav,.admin-top,.rlines,.gen-btn,.print-btn,.view:not(#view-client){display:none!important}
     body{background:#fff}
@@ -115,6 +126,7 @@
   </div>
   <div class="nav-sep"></div>
   <button class="nav-btn active" onclick="switchView('admin')">Panel de tasas</button>
+  <button class="nav-btn" onclick="switchView('preview')">Pre Vista Cliente</button>
   <button class="nav-btn" onclick="switchView('client')">Vista cliente</button>
 </div>
 
@@ -147,6 +159,12 @@
 
   <div class="rlines" id="rlines"></div>
 
+</div>
+
+<!-- ═══════════════ PRE VISTA CLIENT ═══════════════ -->
+<div id="view-preview" class="view">
+  <div id="preview-card-wrap"></div>
+  <button class="gen-btn" style="margin:16px 0 0;max-width:960px;display:block" onclick="applyPreviewAndGoClient()">Ver Vista Cliente con selección →</button>
 </div>
 
 <!-- ═══════════════ CLIENT VIEW ═══════════════ -->
@@ -198,8 +216,10 @@ function switchView(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
-  document.querySelectorAll('.nav-btn')[v === 'admin' ? 0 : 1].classList.add('active');
+  const idx = v === 'admin' ? 0 : v === 'preview' ? 1 : 2;
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
   if (v === 'client') renderClient();
+  if (v === 'preview') renderPreview();
 }
 
 function setComision(btn) {
@@ -272,12 +292,81 @@ function renderAll() {
   renderLines();
 }
 
+
+// State for preview selections (plazo enabled per line)
+let previewState = {};
+
+function initPreviewState() {
+  LINES.forEach(l => {
+    previewState[l.id] = {};
+    PLAZOS.forEach(p => { previewState[l.id][p] = true; });
+  });
+}
+
+function togglePlazo(lid, p) {
+  previewState[lid][p] = false;
+  renderPreview();
+}
+
+function renderPreview() {
+  const today = new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', year:'numeric'});
+  const cards = '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">' +
+    LINES.map(l => {
+      const rows = PLAZOS.map(p => {
+        if (!previewState[l.id][p]) return '';
+        const c = getCohef(l, p);
+        if (c == null) return `<div class="preview-row"><span class="cr-plazo">${p}</span><span class="cr-cuota">—</span><span></span></div>`;
+        const cuota = bruto * c / 1000;
+        return `<div class="preview-row">
+          <span class="cr-plazo">${p}</span>
+          <span class="cr-cuota">${bruto > 0 ? fmtPeso(cuota) : '—'}</span>
+          <button class="del-btn" onclick="togglePlazo('${l.id}', ${p})" title="Eliminar fila">✕</button>
+        </div>`;
+      }).join('');
+
+      return `<div class="client-card" style="flex:1;min-width:260px;max-width:380px">
+        <div class="client-header" style="position:relative">
+          <div style="position:absolute;top:7px;right:10px;font-size:9px;color:rgba(255,255,255,.5)">${today}</div>
+          <div class="bank-logo">BANCO COLUMBIA</div>
+          <div class="est-title">ESTIMADOR DE COSTOS COLUMBIA</div>
+        </div>
+        <div style="text-align:center;padding:8px 14px;border-bottom:1px solid #eee;background:#003087">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px">Línea de crédito</div>
+          <div style="display:inline-block;background:#f0c040;color:#1a1a2e;font-size:12px;font-weight:800;padding:4px 16px;border-radius:4px;letter-spacing:.06em">${l.sub}</div>
+        </div>
+        <div class="client-section" style="border-bottom:1px solid #eee">
+          <div class="client-field">
+            <div class="cf-label">Monto final a cliente</div>
+            <div class="cf-val">${bruto > 0 ? fmtPeso(bruto * (1 - comision)) : '—'}</div>
+          </div>
+          <div class="client-field">
+            <div class="cf-label">Monto crédito a solicitar</div>
+            <div class="cf-val">${bruto > 0 ? fmtPeso(bruto) : '—'}</div>
+          </div>
+        </div>
+        <div class="client-note">
+          Plazo de 12 a 60 meses se corrobora al momento de solicitar el crédito la disponibilidad máxima del cliente determinado por valor cuota e ingresos.
+        </div>
+        <div class="client-table-head">
+          <span>PLAZO EN MESES</span><span>MONTO CUOTA APROX.</span>
+        </div>
+        <div>${rows || '<div style="padding:12px;text-align:center;color:#aaa;font-size:12px">Sin filas seleccionadas</div>'}</div>
+      </div>`;
+    }).join('') + '</div>';
+
+  document.getElementById('preview-card-wrap').innerHTML = cards;
+}
+
+function applyPreviewAndGoClient() {
+  switchView('client');
+}
+
 function renderClient() {
   const today = new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', year:'numeric'});
 
   const cards = '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">' +
     LINES.map(l => {
-      const rows = PLAZOS.map(p => {
+      const rows = PLAZOS.filter(p => previewState[l.id] && previewState[l.id][p] !== false).map(p => {
         const c = getCohef(l, p);
         if (c == null) return `<div class="client-row"><span class="cr-plazo">${p}</span><span class="cr-na">—</span></div>`;
         const cuota = bruto * c / 1000;
@@ -323,6 +412,7 @@ function renderClient() {
 }
 
 // init
+initPreviewState();
 renderAll();
 </script>
 </div>
