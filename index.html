@@ -219,7 +219,7 @@ function switchView(v) {
   const idx = v === 'admin' ? 0 : v === 'preview' ? 1 : 2;
   document.querySelectorAll('.nav-btn')[idx].classList.add('active');
   if (v === 'client') renderClient();
-  if (v === 'preview') renderPreview();
+  if (v === 'preview') { initPreviewState(); renderPreview(); }
 }
 
 function setComision(btn) {
