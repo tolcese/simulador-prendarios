@@ -64,6 +64,10 @@
   .rtable .cuota-td{font-family:'Courier New',monospace;font-size:14px;font-weight:700;color:#1a1a2e}
   .rtable .cuota-td.best{color:#27ae60}
   .rtable .na-td{color:#ddd}
+  .tna-cell{text-align:right;white-space:nowrap}
+  .tna-inp-row{width:52px;font-size:13px;font-weight:700;font-family:'Courier New',monospace;border:1.5px solid #e0e0e0;border-radius:6px;padding:3px 6px;text-align:right;outline:none;color:#1a1a2e}
+  .tna-inp-row:focus{border-color:#b8242a}
+  .tna-pct-sm{font-size:12px;font-weight:700;color:#b8242a;margin-left:2px}
 
   /* ── generate button ── */
   .gen-btn{display:block;margin:24px 0 0;padding:13px 32px;background:#f0c040;border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1a1a2e;cursor:pointer;letter-spacing:.03em;transition:.15s;width:100%}
@@ -154,7 +158,7 @@
     <div class="acard">
       <div class="acard-title">Vista cliente</div>
       <button class="gen-btn" style="margin:0" onclick="switchView('client')">Generar vista cliente →</button>
-      <div class="version-badge">COLUMBIA · ABRIL 2026</div>
+      <div class="version-badge">COLUMBIA · JULIO 2026</div>
     </div>
   </div>
 
@@ -177,18 +181,23 @@
 <script>
 const PLAZOS = [12, 24, 36, 48, 60];
 
-// Coeficientes COLUMBIA - ABRIL 2026
+// Coeficientes COLUMBIA - JULIO 2026 (Unidades Nuevas y Usadas)
+// coeficiente = "Cuota Promedio cada $1.000.000" / 1000
+// refTna = Tasa Cliente (escalonada por plazo)
 const LINES = [
-  {id:'cfe', name:'Fija Exclusive', sub:'CUOTA FIJA EXCLUSIVE', refTna:61.9,
-   refCohef:{12:128.081, 18:null, 24:84.639, 36:70.371, 48:64.171, 60:62.125}},
-  {id:'cfc', name:'Fija Confort',   sub:'CUOTA FIJA CONFORT',   refTna:64.9,
-   refCohef:{12:129.408, 18:null, 24:87.587, 36:72.774, 48:66.741, 60:64.839}},
-  {id:'cfp', name:'Fija Premium',   sub:'CUOTA FIJA PREMIUM',   refTna:67.9,
-   refCohef:{12:130.741, 18:null, 24:89.825, 36:75.206, 48:69.341, 60:67.581}},
+  {id:'cfe', name:'Fija Exclusive', sub:'CUOTA FIJA EXCLUSIVE',
+   refTna:  {12:70.9, 24:64.9, 36:58.9, 48:58.9, 60:58.9},
+   refCohef:{12:126.101, 24:82.455, 36:66.433, 48:61.634, 60:59.442}},
+  {id:'cfc', name:'Fija Confort',   sub:'CUOTA FIJA CONFORT',
+   refTna:  {12:73.9, 24:67.9, 36:62.9, 48:62.9, 60:62.9},
+   refCohef:{12:128.081, 24:84.639, 36:69.577, 48:65.024, 60:63.027}},
+  {id:'cfp', name:'Fija Premium',   sub:'CUOTA FIJA PREMIUM',
+   refTna:  {12:76.9, 24:69.9, 36:65.9, 48:65.9, 60:65.9},
+   refCohef:{12:130.074, 24:86.108, 36:71.970, 48:67.604, 60:65.750}},
 ];
 
 const tnaState = {};
-LINES.forEach(l => { tnaState[l.id] = l.refTna; });
+LINES.forEach(l => { tnaState[l.id] = {}; PLAZOS.forEach(p => { tnaState[l.id][p] = l.refTna[p]; }); });
 
 let comision = 0.032, bruto = 0;
 
@@ -202,7 +211,8 @@ function francesCohef(tna, n) {
 function getCohef(line, p) {
   const ref = line.refCohef[p];
   if (ref == null) return null;
-  const delta = francesCohef(tnaState[line.id], p) - francesCohef(line.refTna, p);
+  const cur = tnaState[line.id][p], base = line.refTna[p];
+  const delta = francesCohef(cur, p) - francesCohef(base, p);
   return ref + delta;
 }
 
@@ -233,11 +243,8 @@ function setComision(btn) {
 function applyTna(inp) {
   const v = parseFloat(inp.value);
   if (!isNaN(v) && v > 0) {
-    const lid = inp.dataset.lid;
-    tnaState[lid] = v;
-    const refEl = document.getElementById('ref-' + lid);
-    const origLine = LINES.find(l => l.id === lid);
-    if (refEl) refEl.textContent = Math.abs(v - origLine.refTna) > 0.01 ? 'ref: ' + origLine.refTna + '%' : '';
+    const lid = inp.dataset.lid, p = parseInt(inp.dataset.p, 10);
+    tnaState[lid][p] = v;
     renderLines();
   }
 }
@@ -253,30 +260,28 @@ function renderLines() {
     <div class="rline">
       <div class="rline-head">
         <span class="rline-name">${l.name}</span>
-        <div class="tna-grp">
-          <span class="tna-label">TNA</span>
-          <div class="tna-box">
-            <input class="tna-inp" type="number" step="0.1" min="0" max="500"
-              value="${tnaState[l.id]}" data-lid="${l.id}"
-              onblur="applyTna(this)" onkeydown="if(event.key==='Enter'){this.blur()}"/>
-            <span class="tna-pct">%</span>
-          </div>
-          <span class="tna-ref" id="ref-${l.id}">${Math.abs(tnaState[l.id] - l.refTna) > 0.01 ? 'ref: ' + l.refTna + '%' : ''}</span>
-          <span class="tna-hint">↵ Enter para aplicar</span>
-        </div>
+        <span class="tna-hint">Tasa cliente editable por plazo · ↵ Enter para aplicar</span>
       </div>
       <table class="rtable">
         <thead><tr>
-          <th>Plazo</th><th>Coeficiente</th><th>Cuota mensual</th>
+          <th>Plazo</th><th>Tasa cliente</th><th>Coeficiente</th><th>Cuota mensual</th>
         </tr></thead>
         <tbody>
           ${PLAZOS.map(p => {
             const c = getCohef(l, p);
-            if (c == null) return `<tr><td>${p} cuotas</td><td class="na-td cohef-td">—</td><td class="na-td">—</td></tr>`;
+            if (c == null) return `<tr><td>${p} cuotas</td><td class="na-td">—</td><td class="na-td cohef-td">—</td><td class="na-td">—</td></tr>`;
             const cuota = bruto * c / 1000;
             const isBest = LINES.length > 1 && Math.abs((minByPlazo[p] || 0) - c) < 0.001;
+            const cur = tnaState[l.id][p], base = l.refTna[p];
+            const dev = Math.abs(cur - base) > 0.01;
             return `<tr>
               <td>${p} cuotas</td>
+              <td class="tna-cell">
+                <input class="tna-inp-row" type="number" step="0.1" min="0" max="500"
+                  value="${cur}" data-lid="${l.id}" data-p="${p}"
+                  onblur="applyTna(this)" onkeydown="if(event.key==='Enter'){this.blur()}"/><span class="tna-pct-sm">%</span>
+                ${dev ? `<span class="tna-ref">ref ${base}%</span>` : ''}
+              </td>
               <td class="cohef-td">${c.toFixed(3)}</td>
               <td class="cuota-td ${isBest ? 'best' : ''}">${bruto > 0 ? fmtPeso(cuota) : '—'}</td>
             </tr>`;
